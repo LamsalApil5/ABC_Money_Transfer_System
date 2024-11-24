@@ -9,8 +9,7 @@ namespace ABC_Money_Transfer_System.Controllers
     {
         private readonly AppDbContext _context;
        
-
-        public AccountsController(AppDbContext context, ForexService service)
+        public AccountsController(AppDbContext context)
         {
             _context = context;
         }
