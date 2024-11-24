@@ -16,12 +16,11 @@ namespace ABC_Money_Transfer_System.Models
         [MaxLength(100)]
         public required string LastName { get; set; }
 
-        [EmailAddress]
         [MaxLength(255)]
-        public required string Email { get; set; }
+        public required string Address { get; set; }
 
         [MaxLength(255)]
-        public required string Password { get; set; }
+        public required string Country { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

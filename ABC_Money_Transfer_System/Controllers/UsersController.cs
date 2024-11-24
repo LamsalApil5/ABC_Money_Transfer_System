@@ -1,5 +1,6 @@
 ﻿using ABC_Money_Transfer_System.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace ABC_Money_Transfer_System.Controllers
@@ -34,6 +35,9 @@ namespace ABC_Money_Transfer_System.Controllers
         // GET: Users/Create
         public IActionResult Create()
         {
+            var countries = _context.Countries.Select(x => x.NiceName ).ToList();
+
+            ViewBag.Countries = new SelectList(countries);
             return View();
         }
 
@@ -58,6 +62,9 @@ namespace ABC_Money_Transfer_System.Controllers
 
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
+            var countries = _context.Countries.Select(c => c.NiceName).ToList();
+
+            ViewBag.Countries = new SelectList(countries, user.Country);
 
             return View(user);
         }
