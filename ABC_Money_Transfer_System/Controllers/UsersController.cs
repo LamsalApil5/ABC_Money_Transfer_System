@@ -17,7 +17,7 @@ namespace ABC_Money_Transfer_System.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _context.Users.ToListAsync() ?? null;
             return View(users);
         }
 

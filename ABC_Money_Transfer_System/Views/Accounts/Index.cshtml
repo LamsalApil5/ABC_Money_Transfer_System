@@ -1,0 +1,77 @@
+﻿@model IEnumerable<ABC_Money_Transfer_System.Models.Accounts>
+
+<h2>Accounts</h2>
+<a asp-action="Create" class="btn btn-primary">Add</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Bank Name</th>
+            <th>Account Number</th>
+            <th>Balance(NPL)</th>
+            <th>User</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var account in Model)
+        {
+            <tr>
+                <td>@account.Bank_Name</td>
+                <td>@account.AccountNumber</td>
+                <td>@account.Balance</td>
+                <td>@account.Users?.FirstName @account.Users?.LastName</td>
+                <td>@account.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@account.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Edit" asp-route-id="@account.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <!-- Delete Button - Opens Modal -->
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                            data-id="@account.Id" data-bankname="@account.Bank_Name">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal for Confirmation -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="accountName"></strong>?
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" asp-action="Delete" method="post">
+                    <input type="hidden" id="accountId" name="accountId" />
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // When delete button is clicked, set the modal data dynamically
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            var accountId = button.getAttribute('data-id');
+            var accountName = button.getAttribute('data-bankname');
+
+            var modalAccountName = deleteModal.querySelector('#accountName');
+            var modalAccountId = deleteModal.querySelector('#accountId');
+
+            modalAccountName.textContent = accountName;
+            modalAccountId.value = accountId;
+        });
+    </script>
+}
