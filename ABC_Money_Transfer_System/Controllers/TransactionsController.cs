@@ -15,11 +15,33 @@ namespace ABC_Money_Transfer_System.Controllers
             _forexService = forexService;
             _context = context;
         }
-        public IActionResult Create()
-        {
-            ViewBag.Users = new SelectList(_context.Users, "Id", "FirstName", "Country");
-            return View();
-        }
+       public IActionResult Create()
+{
+    var users = _context.Users
+                        .Select(u => new { u.Id, u.FirstName, u.Country })
+                        .ToList();
+
+    var countries = _context.Countries
+                            .Select(c => new { c.Id, c.CurrencyCode, c.Name })
+                            .ToList();
+
+    var userSelectList = users.Select(user => new SelectListItem
+    {
+        Value = user.Id.ToString(),
+        Text = $"{user.FirstName} ({countries.FirstOrDefault(c => c.Name == user.Country)?.CurrencyCode ?? "Unknown"})"
+    }).ToList();
+
+    var exchangeRates = _forexService.GetExchangeCurrency().Result
+                                     .ToDictionary(r => r.Iso3, r => r.Buy);
+
+    ViewBag.Users = userSelectList;
+    ViewBag.ExchangeRates = exchangeRates;
+
+    return View();
+}
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> CreateTransaction(int senderId, int receiverId, int transferAmount)

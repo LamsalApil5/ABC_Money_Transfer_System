@@ -38,6 +38,23 @@ public class ForexService
             return null;           
         }
     }
+    public async Task<List<CurrencyViewModel>> GetExchangeCurrency()
+    {
+        var getForexRates = await GetForexRatesAsync();
+        var rates = getForexRates.Data.Payload.SelectMany(d => d.Rates).ToList();
+
+        var result = rates.Select(rate => new CurrencyViewModel
+        {
+            Name = rate.Currency.Name,
+            Iso3 = rate.Currency.Iso3,
+            Buy = decimal.TryParse(rate.Buy, out var buyValue) ? (decimal?)buyValue : null,
+            Sell = decimal.TryParse(rate.Sell, out var sellValue) ? (decimal?)sellValue : null
+        }).ToList();
+
+        return result;
+    }
+
+
     public async Task<ExchangeViewModel> CalculateAmount(string? iso3, decimal? balance)
     {
         // Check if balance is null
