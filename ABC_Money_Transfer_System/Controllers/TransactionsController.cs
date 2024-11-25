@@ -15,83 +15,89 @@ namespace ABC_Money_Transfer_System.Controllers
             _forexService = forexService;
             _context = context;
         }
-       public IActionResult Create()
-{
-    var users = _context.Users
-                        .Select(u => new { u.Id, u.FirstName, u.Country })
-                        .ToList();
+        public IActionResult Create()
+        {
+            var users = _context.Users
+                                .Select(u => new { u.Id, u.FirstName, u.Country })
+                                .ToList();
 
-    var countries = _context.Countries
-                            .Select(c => new { c.Id, c.CurrencyCode, c.Name })
-                            .ToList();
+            var countries = _context.Countries
+                                    .Select(c => new { c.Id, c.CurrencyCode, c.Name })
+                                    .ToList();
 
-    var userSelectList = users.Select(user => new SelectListItem
-    {
-        Value = user.Id.ToString(),
-        Text = $"{user.FirstName} ({countries.FirstOrDefault(c => c.Name == user.Country)?.CurrencyCode ?? "Unknown"})"
-    }).ToList();
+            var userSelectList = users.Select(user => new SelectListItem
+            {
+                Value = user.Id.ToString(),
+                Text = $"{user.FirstName} ({countries.FirstOrDefault(c => c.Name == user.Country)?.CurrencyCode ?? "Unknown"})"
+            }).ToList();
 
-    var exchangeRates = _forexService.GetExchangeCurrency().Result
-                                     .ToDictionary(r => r.Iso3, r => r.Buy);
+            var exchangeRates = _forexService.GetExchangeCurrency().Result
+                                             .ToDictionary(r => r.Iso3, r => r.Buy);
 
-    ViewBag.Users = userSelectList;
-    ViewBag.ExchangeRates = exchangeRates;
+            ViewBag.Users = userSelectList;
+            ViewBag.ExchangeRates = exchangeRates;
 
-    return View();
-}
+            return View();
+        }
 
 
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateTransaction(int senderId, int receiverId, int transferAmount)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Transactions transaction)
         {
-            if (transferAmount <= 0)
+            if (ModelState.IsValid)
             {
-                return BadRequest("Transfer amount must be greater than zero.");
+                transaction.payoutAmount = transaction.transferAmount * transaction.exchangeRate;
+
+                // Save transaction to the database
+                _context.Transactions.Add(transaction);
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
+            }
+            return View(transaction);
+        }
+
+
+
+        public IActionResult Index(DateTime? startDate, DateTime? endDate)
+        {
+            var transactionsQuery = _context.Transactions.AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                transactionsQuery = transactionsQuery.Where(t => t.CreatedAt >= startDate.Value);
             }
 
-            // Fetch today's exchange rates
-            var forexRates = await _forexService.GetForexRatesAsync();
-
-            // Get the exchange rate for MYR to NPR
-            var myrRate = forexRates.Data.Payload
-                                     .SelectMany(d => d.Rates)
-                                     .FirstOrDefault(r => r.Currency.Iso3 == "MYR");
-
-            var nprRate = forexRates.Data.Payload
-                                     .SelectMany(d => d.Rates)
-                                     .FirstOrDefault(r => r.Currency.Iso3 == "NPR");
-
-            if (myrRate == null || nprRate == null)
+            if (endDate.HasValue)
             {
-                return BadRequest("Exchange rate for MYR or NPR not found.");
+                transactionsQuery = transactionsQuery.Where(t => t.CreatedAt <= endDate.Value);
             }
 
-            if (!decimal.TryParse(myrRate.Buy, out decimal myrBuyRate) || 
-                !decimal.TryParse(nprRate.Buy, out decimal nprBuyRate))
+            var transactions = transactionsQuery.ToList();
+
+            // Create the model to pass to the view
+            var model = new TransactionsReportViewModel
             {
-                return BadRequest("Invalid exchange rate format.");
-            }
-
-            // Calculate the exchange rate (MYR to NPR)
-            decimal exchangeRate = myrBuyRate / nprBuyRate;
-
-            // Calculate payout amount
-            decimal payoutAmount = transferAmount * exchangeRate;
-
-            // Create the transaction
-            var transaction = new transactions
-            {
-                senderId = senderId,
-                receiverId = receiverId,
-                transferAmount = transferAmount,
-                exchangeRate = (int)Math.Round(exchangeRate),
-                payoutAmount = (int)Math.Round(payoutAmount)
+                StartDate = startDate,
+                EndDate = endDate,
+                Transactions = transactions.Select(t => new TransactionReportItem
+                {
+                    Id = t.Id,
+                    SenderName = _context.Users.Where(u => u.Id == t.senderId).Select(u => u.FirstName + " " + u.MiddleName + " " + u.LastName).FirstOrDefault() ?? "",
+                    ReceiverName = _context.Users.Where(u => u.Id == t.receiverId).Select(u => u.FirstName + " " + u.MiddleName + " " + u.LastName).FirstOrDefault() ?? "",
+                    TransferAmount = t.transferAmount,
+                    ExchangeRate = t.exchangeRate,
+                    PayoutAmount = t.payoutAmount,
+                    CreatedAt = t.CreatedAt
+                }).ToList()
             };
 
-
-            return Ok(transaction);
+            return View(model);
         }
+
+
     }
 }

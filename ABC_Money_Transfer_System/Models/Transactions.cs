@@ -1,11 +1,17 @@
-﻿namespace ABC_Money_Transfer_System.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ABC_Money_Transfer_System.Models
 {
-    public class transactions
+    public class Transactions
     {
+        [Key]
+        public int Id { get; set; }
         public int senderId { get; set; }
         public int receiverId { get; set; }
-        public int transferAmount { get; set; }
-        public int exchangeRate { get; set; }
-        public int payoutAmount  { get; set; }
+        public decimal transferAmount { get; set; }
+        public decimal exchangeRate { get; set; }
+        public decimal payoutAmount  { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
     }
 }

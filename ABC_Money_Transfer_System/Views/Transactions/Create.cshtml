@@ -1,7 +1,7 @@
-﻿@model ABC_Money_Transfer_System.Models.transactions
+﻿@model ABC_Money_Transfer_System.Models.Transactions
 
-<h1>Create Transaction</h1>
-<form method="post" asp-action="CreateTransaction">
+<h1>Transfer</h1>
+<form method="post" asp-action="Create">
     <div class="form-group">
         <label for="senderId">Sender</label>
         <select id="senderId" name="senderId" class="form-control" asp-items="ViewBag.Users" onchange="updateExchangeRate()">
@@ -20,20 +20,20 @@
 
     <div class="form-group">
         <label for="transferAmount">Transfer Amount (MYR)</label>
-        <input type="number" id="transferAmount" name="transferAmount" class="form-control" oninput="calculateInNPR()" value="0" required />
+        <input asp-for="transferAmount" type="number" id="transferAmount" name="transferAmount" class="form-control" oninput="calculateInNPR()" value="0" required />
     </div>
 
     <div class="form-group">
-        <label for="exchangeRate">Exchange Rate</label>
-        <input type="number" id="exchangeRate" name="exchangeRate" class="form-control" value="0" readonly />
+        <label asp-for="exchangeRate" for="exchangeRate">Exchange Rate</label>
+        <input asp-for="exchangeRate" type="number" id="exchangeRate" name="exchangeRate" class="form-control" value="0" readonly />
     </div>
 
     <div class="form-group">
-        <label for="payoutAmount">Amount in NPR</label>
-        <input type="text" id="payoutAmount" class="form-control" readonly />
+        <label  for="payoutAmount">Amount in NPR</label>
+        <input asp-for="payoutAmount" type="text" id="payoutAmount" class="form-control" readonly />
     </div>
 
-    <button type="submit" class="btn btn-primary">Create Transaction</button>
+    <button type="submit" class="btn btn-primary mt-3">Transfer</button>
 </form>
 
 <script>

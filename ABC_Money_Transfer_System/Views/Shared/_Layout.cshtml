@@ -40,6 +40,11 @@
                 .sidebar a:hover {
                     background-color: #ffff;
                 }
+                /* Highlight the active sidebar item */
+                .sidebar a.active {
+                    background-color: white; /* Highlight color */
+                    color: black; /* Text color when active */
+                }
 
         /* Content wrapper styles */
         .content-wrapper {
@@ -78,11 +83,12 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <h4 class="text-black text-center">ABC System</h4>
-        <a href="@Url.Action("Index", "Home")">Currency</a>
-        <a href="@Url.Action("Index", "Users")">Users</a>
-        <a href="@Url.Action("Index", "Accounts")">Accounts</a>
-        <a href="@Url.Action("Create", "Transactions")">Transfer</a>
+        <h4 class="text-black text-center font-monospace fw-bolder text-capitalize" style="font-size:38px; border-bottom: 3px double #000;"> ABC System </h4>
+        <a href="@Url.Action("Index", "Home")" class="text-black font-monospace fw-bold text-capitalize">Dashboard</a>
+        <a href="@Url.Action("Index", "Users")" class="text-black font-monospace fw-bold text-capitalize">Users</a>
+        <a href="@Url.Action("Index", "Accounts")" class="text-black font-monospace fw-bold text-capitalize">Accounts</a>
+        <a href="@Url.Action("Create", "Transactions")" class="text-black font-monospace fw-bold text-capitalize">Transfer</a>
+        <a href="@Url.Action("Index", "Transactions")" class="text-black font-monospace fw-bold text-capitalize">Transactions Report</a>
     </div>
 
     <!-- Navbar (only user icon on the right) -->
@@ -114,13 +120,13 @@
             @RenderBody()
         </main>
     </div>
-
-    
-
+   
     <script src="https://kit.fontawesome.com/8bec846cb1.js" crossorigin="anonymous"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
+
 </html>

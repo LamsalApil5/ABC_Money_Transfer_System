@@ -1,6 +1,5 @@
 ﻿using ABC_Money_Transfer_System.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace ABC_Money_Transfer_System
 {
@@ -9,6 +8,7 @@ namespace ABC_Money_Transfer_System
         public DbSet<Users> Users { get; set; }
         public DbSet<Accounts> Accounts { get; set; }
         public DbSet<Country> Countries { get; set; }
+        public DbSet<Transactions> Transactions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     }

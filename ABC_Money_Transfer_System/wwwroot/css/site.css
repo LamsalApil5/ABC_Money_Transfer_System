@@ -20,3 +20,20 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #transactionsTable, #transactionsTable * {
+        visibility: visible;
+    }
+
+    #transactionsTable {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+}
